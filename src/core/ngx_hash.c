@@ -245,6 +245,8 @@ ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name,
 }
 
 
+// 8字节的value指针 + 2字节的key的长度 + key使用的空间 
+// bucket中存的是ngx_hash_elt_t
 #define NGX_HASH_ELT_SIZE(name)                                               \
     (sizeof(void *) + ngx_align((name)->key.len + 2, sizeof(void *)))
 
@@ -265,6 +267,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         return NGX_ERROR;
     }
 
+    //跟cacheline什么关系
     if (hinit->bucket_size > 65536 - ngx_cacheline_size) {
         ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0,
                       "could not build %s, too large "
@@ -273,6 +276,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         return NGX_ERROR;
     }
 
+    // bucket的大小与保存元素的大小 + 8字节的NULL
     for (n = 0; n < nelts; n++) {
         if (hinit->bucket_size < NGX_HASH_ELT_SIZE(&names[n]) + sizeof(void *))
         {
@@ -284,13 +288,18 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         }
     }
 
+    // test u_short数组,保存每个bucket的大小
     test = ngx_alloc(hinit->max_size * sizeof(u_short), hinit->pool->log);
     if (test == NULL) {
         return NGX_ERROR;
     }
 
+    // 每个bucket后边有8字节的NULL
     bucket_size = hinit->bucket_size - sizeof(void *);
 
+    // 每个元素保存一个值的指针 + 2字节的len + 至少1字节的键的长度，按8字节对齐后至少是16字节
+    // bucket_size/(2*sizeof(void *)) 表示每个bucket最多能保存多少个元素
+    // nelts/(bucket_size/(2*sizeof(void *))) 表示至少需要多少bucket
     start = nelts / (bucket_size / (2 * sizeof(void *)));
     start = start ? start : 1;
 
@@ -298,6 +307,8 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         start = hinit->max_size - 1000;
     }
 
+    // size代表bucket的个数
+    // 这个循环需要计算出一个最小的size
     for (size = start; size <= hinit->max_size; size++) {
 
         ngx_memzero(test, size * sizeof(u_short));
@@ -315,7 +326,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
                           "%ui: %ui %uz \"%V\"",
                           size, key, len, &names[n].key);
 #endif
-
+            // 如果一个bucket的大小已经超出了限制，则将桶的个数+1后重新开始计算
             if (len > bucket_size) {
                 goto next;
             }
@@ -367,6 +378,7 @@ found:
 
     len = 0;
 
+    // 按cache line对齐
     for (i = 0; i < size; i++) {
         if (test[i] == sizeof(void *)) {
             continue;
@@ -404,6 +416,7 @@ found:
 
     elts = ngx_align_ptr(elts, ngx_cacheline_size);
 
+    // 为每个bucket的指针赋值
     for (i = 0; i < size; i++) {
         if (test[i] == sizeof(void *)) {
             continue;
@@ -417,6 +430,7 @@ found:
         test[i] = 0;
     }
 
+    // 将每个元素放入bucket中
     for (n = 0; n < nelts; n++) {
         if (names[n].key.data == NULL) {
             continue;
@@ -433,6 +447,7 @@ found:
         test[key] = (u_short) (test[key] + NGX_HASH_ELT_SIZE(&names[n]));
     }
 
+    // 每个bucket的结尾以NULL结束
     for (i = 0; i < size; i++) {
         if (buckets[i] == NULL) {
             continue;

@@ -85,7 +85,8 @@ ngx_radix_tree_create(ngx_pool_t *pool, ngx_int_t preallocate)
 
         key = 0;
         mask >>= 1;
-        mask |= 0x80000000;
+        mask |= 0x80000000; 
+        //mask 0x80 1000 0000 0000 0000 0000 0000 0000 0000
 
         do {
             if (ngx_radix32tree_insert(tree, key, mask, NGX_RADIX_NO_VALUE)
