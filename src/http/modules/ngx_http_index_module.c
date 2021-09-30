@@ -409,11 +409,12 @@ ngx_http_index_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 
     ngx_http_index_t  *index;
 
+    // 子承父业的配置
     if (conf->indices == NULL) {
         conf->indices = prev->indices;
         conf->max_index_len = prev->max_index_len;
     }
-
+    // 如果父配置也没有,那么子配置使用默认值
     if (conf->indices == NULL) {
         conf->indices = ngx_array_create(cf->pool, 1, sizeof(ngx_http_index_t));
         if (conf->indices == NULL) {
@@ -439,6 +440,7 @@ ngx_http_index_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 }
 
 
+//注册index指令的处理器到11阶段的内容处理阶段
 static ngx_int_t
 ngx_http_index_init(ngx_conf_t *cf)
 {
@@ -460,6 +462,7 @@ ngx_http_index_init(ngx_conf_t *cf)
 
 /* TODO: warn about duplicate indices */
 
+// conf结构体是模块自身定义的保存配置的结构
 static char *
 ngx_http_index_set_index(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
@@ -480,7 +483,7 @@ ngx_http_index_set_index(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     value = cf->args->elts;
 
     for (i = 1; i < cf->args->nelts; i++) {
-
+        // index指令只有最后一项的结尾可以是绝对路径
         if (value[i].data[0] == '/' && i != cf->args->nelts - 1) {
             ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
                                "only the last index in \"index\" directive "

@@ -2502,7 +2502,7 @@ ngx_http_internal_redirect(ngx_http_request_t *r,
     ngx_http_core_srv_conf_t  *cscf;
 
     r->uri_changes--;
-
+    // 重定向次数过多
     if (r->uri_changes == 0) {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                       "rewrite or internal redirection cycle "
@@ -2543,7 +2543,7 @@ ngx_http_internal_redirect(ngx_http_request_t *r,
     r->valid_unparsed_uri = 0;
     r->add_uri_to_alias = 0;
     r->main->count++;
-
+    // 进入重定向阶段，重新定向
     ngx_http_handler(r);
 
     return NGX_DONE;

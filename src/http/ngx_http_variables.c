@@ -713,6 +713,7 @@ ngx_http_get_variable(ngx_http_request_t *r, ngx_str_t *name, ngx_uint_t key)
         return NULL;
     }
 
+    // 否则去prefix_variables变量中去查找
     len = 0;
 
     v = cmcf->prefix_variables.elts;
@@ -865,7 +866,7 @@ ngx_http_variable_headers_internal(ngx_http_request_t *r,
             continue;
         }
 
-        len += h[i]->value.len + 2;
+        len += h[i]->value.len + 2;//加2是为啥
     }
 
     if (len == 0) {

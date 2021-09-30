@@ -184,7 +184,7 @@ ngx_http_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
      * create the main_conf's, the null srv_conf's, and the null loc_conf's
      * of the all http modules
      */
-
+    // 解析每个模块的http conf,server conf,local conf
     for (m = 0; cf->cycle->modules[m]; m++) {
         if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) {
             continue;
@@ -217,7 +217,7 @@ ngx_http_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     pcf = *cf;
     cf->ctx = ctx;
-
+    // 执行http module的preconfiguration
     for (m = 0; cf->cycle->modules[m]; m++) {
         if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) {
             continue;
@@ -408,7 +408,7 @@ ngx_http_init_phases(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
     return NGX_OK;
 }
 
-
+// 构造header头的hash
 static ngx_int_t
 ngx_http_init_headers_in_hash(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
 {

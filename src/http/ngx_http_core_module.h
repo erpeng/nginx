@@ -105,24 +105,24 @@ typedef struct {
 
 
 typedef enum {
-    NGX_HTTP_POST_READ_PHASE = 0,
+    NGX_HTTP_POST_READ_PHASE = 0,//realip module
 
-    NGX_HTTP_SERVER_REWRITE_PHASE,
+    NGX_HTTP_SERVER_REWRITE_PHASE,//rewrite module
 
-    NGX_HTTP_FIND_CONFIG_PHASE,
-    NGX_HTTP_REWRITE_PHASE,
-    NGX_HTTP_POST_REWRITE_PHASE,
+    NGX_HTTP_FIND_CONFIG_PHASE, // 没有handler
+    NGX_HTTP_REWRITE_PHASE, // rewrite module
+    NGX_HTTP_POST_REWRITE_PHASE, // 没有handler
 
-    NGX_HTTP_PREACCESS_PHASE,
+    NGX_HTTP_PREACCESS_PHASE, // realip limit_req limit_conn degrade
 
-    NGX_HTTP_ACCESS_PHASE,
-    NGX_HTTP_POST_ACCESS_PHASE,
+    NGX_HTTP_ACCESS_PHASE,// auth_request,auth_basic,access
+    NGX_HTTP_POST_ACCESS_PHASE,// 没有handler
 
-    NGX_HTTP_PRECONTENT_PHASE,
+    NGX_HTTP_PRECONTENT_PHASE,// try_files,mirror
 
-    NGX_HTTP_CONTENT_PHASE,
+    NGX_HTTP_CONTENT_PHASE,// static,random_index,index,gzip_static,dav,autoindex
 
-    NGX_HTTP_LOG_PHASE
+    NGX_HTTP_LOG_PHASE//log
 } ngx_http_phases;
 
 typedef struct ngx_http_phase_handler_s  ngx_http_phase_handler_t;
@@ -156,10 +156,10 @@ typedef struct {
 
     ngx_hash_t                 headers_in_hash;
 
-    ngx_hash_t                 variables_hash;
+    ngx_hash_t                 variables_hash;/* ngx_http_variable_t */ //正常的变量
 
-    ngx_array_t                variables;         /* ngx_http_variable_t */
-    ngx_array_t                prefix_variables;  /* ngx_http_variable_t */
+    ngx_array_t                variables;         /* ngx_http_variable_t */ //索引变量
+    ngx_array_t                prefix_variables;  /* ngx_http_variable_t */ // 带前缀的变量
     ngx_uint_t                 ncaptures;
 
     ngx_uint_t                 server_names_hash_max_size;
@@ -168,7 +168,7 @@ typedef struct {
     ngx_uint_t                 variables_hash_max_size;
     ngx_uint_t                 variables_hash_bucket_size;
 
-    ngx_hash_keys_arrays_t    *variables_keys;
+    ngx_hash_keys_arrays_t    *variables_keys;// 非正常并且不带前缀的变量
 
     ngx_array_t               *ports;
 

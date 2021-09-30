@@ -78,8 +78,8 @@ typedef struct {
     ngx_pool_t       *pool;
     ngx_pool_t       *temp_pool;
 
-    ngx_array_t       keys;
-    ngx_array_t      *keys_hash;
+    ngx_array_t       keys;//
+    ngx_array_t      *keys_hash;//hash之后获得索引，根据索引下标获取到name
 
     ngx_array_t       dns_wc_head;
     ngx_array_t      *dns_wc_head_hash;

@@ -769,13 +769,13 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
 
         for (i = 0; i < key->len; i++) {
 
-            if (key->data[i] == '*') {
+            if (key->data[i] == '*') {//不能有两个*
                 if (++n > 1) {
                     return NGX_DECLINED;
                 }
             }
 
-            if (key->data[i] == '.' && key->data[i + 1] == '.') {
+            if (key->data[i] == '.' && key->data[i + 1] == '.') {//不能有两个连续的.
                 return NGX_DECLINED;
             }
 
