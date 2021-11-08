@@ -402,7 +402,7 @@ ngx_http_access_rule(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     return NGX_CONF_OK;
 }
 
-
+//创建local conf用于保存配置
 static void *
 ngx_http_access_create_loc_conf(ngx_conf_t *cf)
 {
@@ -416,7 +416,7 @@ ngx_http_access_create_loc_conf(ngx_conf_t *cf)
     return conf;
 }
 
-
+// 如果location中未配置，复用上层的配置
 static char *
 ngx_http_access_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 {
@@ -443,7 +443,7 @@ ngx_http_access_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
     return NGX_CONF_OK;
 }
 
-
+//在access阶段注册handler
 static ngx_int_t
 ngx_http_access_init(ngx_conf_t *cf)
 {
